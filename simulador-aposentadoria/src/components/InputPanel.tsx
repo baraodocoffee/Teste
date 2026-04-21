@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { SimulationInput, InvestorProfile, PROFILE_CONFIG } from '../utils/calc'
 
 interface Props {
@@ -22,13 +23,35 @@ const inputClass =
 export default function InputPanel({ input, onChange }: Props) {
   const set = (partial: Partial<SimulationInput>) => onChange({ ...input, ...partial })
 
-  const handleAge = (field: 'currentAge' | 'retirementAge', value: string) => {
-    const parsed = parseInt(value)
-    if (isNaN(parsed)) return
+  // Estado local em string para permitir digitação livre sem validação a cada tecla
+  const [ages, setAges] = useState({
+    currentAge: String(input.currentAge),
+    retirementAge: String(input.retirementAge),
+  })
+
+  // Sincroniza display quando o input externo mudar (ex: reset)
+  useEffect(() => {
+    setAges({
+      currentAge: String(input.currentAge),
+      retirementAge: String(input.retirementAge),
+    })
+  }, [input.currentAge, input.retirementAge])
+
+  const handleAgeBlur = (field: 'currentAge' | 'retirementAge') => {
+    const raw = ages[field]
+    const parsed = parseInt(raw)
+    if (isNaN(parsed)) {
+      // Volta ao valor válido atual
+      setAges(prev => ({ ...prev, [field]: String(input[field]) }))
+      return
+    }
     if (field === 'currentAge') {
-      set({ currentAge: parsed, retirementAge: Math.max(input.retirementAge, parsed + 1) })
+      const clamped = Math.max(18, Math.min(parsed, 99))
+      const retirementAge = Math.max(input.retirementAge, clamped + 1)
+      set({ currentAge: clamped, retirementAge })
     } else {
-      set({ retirementAge: Math.max(parsed, input.currentAge + 1) })
+      const clamped = Math.max(input.currentAge + 1, Math.min(parsed, 100))
+      set({ retirementAge: clamped })
     }
   }
 
@@ -47,9 +70,10 @@ export default function InputPanel({ input, onChange }: Props) {
             <input
               type="number"
               min={18}
-              max={79}
-              value={input.currentAge}
-              onChange={e => handleAge('currentAge', e.target.value)}
+              max={99}
+              value={ages.currentAge}
+              onChange={e => setAges(prev => ({ ...prev, currentAge: e.target.value }))}
+              onBlur={() => handleAgeBlur('currentAge')}
               className={inputClass}
             />
           </Field>
@@ -58,8 +82,9 @@ export default function InputPanel({ input, onChange }: Props) {
               type="number"
               min={input.currentAge + 1}
               max={100}
-              value={input.retirementAge}
-              onChange={e => handleAge('retirementAge', e.target.value)}
+              value={ages.retirementAge}
+              onChange={e => setAges(prev => ({ ...prev, retirementAge: e.target.value }))}
+              onBlur={() => handleAgeBlur('retirementAge')}
               className={inputClass}
             />
           </Field>
