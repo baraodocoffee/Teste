@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import InputPanel from './components/InputPanel'
 import ResultPanel from './components/ResultPanel'
 import PatrimonyChart from './components/PatrimonyChart'
-import { simulate, SimulationInput, SimulationResult } from './utils/calc'
+import { simulate, SimulationInput } from './utils/calc'
 
 const DEFAULT_INPUT: SimulationInput = {
   currentAge: 35,
@@ -14,11 +14,7 @@ const DEFAULT_INPUT: SimulationInput = {
 
 export default function App() {
   const [input, setInput] = useState<SimulationInput>(DEFAULT_INPUT)
-  const [result, setResult] = useState<SimulationResult>(() => simulate(DEFAULT_INPUT))
-
-  useEffect(() => {
-    setResult(simulate(input))
-  }, [input])
+  const result = useMemo(() => simulate(input), [input])
 
   return (
     <div className="min-h-screen bg-slate-50">
