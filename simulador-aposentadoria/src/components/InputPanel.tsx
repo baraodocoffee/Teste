@@ -20,16 +20,46 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 const inputClass =
   'w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy transition-colors'
 
+function MoneyInput({ value, onChange, step = 1000 }: { value: number; onChange: (v: number) => void; step?: number }) {
+  const [display, setDisplay] = useState(String(value))
+
+  useEffect(() => {
+    setDisplay(String(value))
+  }, [value])
+
+  const handleBlur = () => {
+    const parsed = parseFloat(display)
+    const next = isNaN(parsed) ? 0 : Math.max(parsed, 0)
+    onChange(next)
+    setDisplay(String(next))
+  }
+
+  return (
+    <div className="relative">
+      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-medium">
+        R$
+      </span>
+      <input
+        type="number"
+        min={0}
+        step={step}
+        value={display}
+        onChange={e => setDisplay(e.target.value)}
+        onBlur={handleBlur}
+        className={`${inputClass} pl-9`}
+      />
+    </div>
+  )
+}
+
 export default function InputPanel({ input, onChange }: Props) {
   const set = (partial: Partial<SimulationInput>) => onChange({ ...input, ...partial })
 
-  // Estado local em string para permitir digitação livre sem validação a cada tecla
   const [ages, setAges] = useState({
     currentAge: String(input.currentAge),
     retirementAge: String(input.retirementAge),
   })
 
-  // Sincroniza display quando o input externo mudar (ex: reset)
   useEffect(() => {
     setAges({
       currentAge: String(input.currentAge),
@@ -41,7 +71,6 @@ export default function InputPanel({ input, onChange }: Props) {
     const raw = ages[field]
     const parsed = parseInt(raw)
     if (isNaN(parsed)) {
-      // Volta ao valor válido atual
       setAges(prev => ({ ...prev, [field]: String(input[field]) }))
       return
     }
@@ -101,34 +130,18 @@ export default function InputPanel({ input, onChange }: Props) {
       <div className="space-y-3">
         <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Valores</p>
         <Field label="Patrimônio atual (R$)">
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-medium">
-              R$
-            </span>
-            <input
-              type="number"
-              min={0}
-              step={1000}
-              value={input.currentPatrimony}
-              onChange={e => set({ currentPatrimony: Math.max(parseFloat(e.target.value) || 0, 0) })}
-              className={`${inputClass} pl-9`}
-            />
-          </div>
+          <MoneyInput
+            value={input.currentPatrimony}
+            onChange={v => set({ currentPatrimony: v })}
+            step={1000}
+          />
         </Field>
         <Field label="Aporte mensal (R$)">
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-medium">
-              R$
-            </span>
-            <input
-              type="number"
-              min={0}
-              step={100}
-              value={input.monthlyContribution}
-              onChange={e => set({ monthlyContribution: Math.max(parseFloat(e.target.value) || 0, 0) })}
-              className={`${inputClass} pl-9`}
-            />
-          </div>
+          <MoneyInput
+            value={input.monthlyContribution}
+            onChange={v => set({ monthlyContribution: v })}
+            step={100}
+          />
         </Field>
       </div>
 
