@@ -20,16 +20,30 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   )
 }
 
-function MoneyInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+function MoneyInput({ value, onChange, min = 0, step = 500 }: { value: number; onChange: (v: number) => void; min?: number; step?: number }) {
+  const [display, setDisplay] = useState(String(value))
+
+  useEffect(() => {
+    setDisplay(String(value))
+  }, [value])
+
+  const handleBlur = () => {
+    const parsed = parseFloat(display)
+    const next = isNaN(parsed) ? min : Math.max(parsed, min)
+    onChange(next)
+    setDisplay(String(next))
+  }
+
   return (
     <div className="relative">
       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-medium">R$</span>
       <input
         type="number"
-        min={0}
-        step={500}
-        value={value}
-        onChange={e => onChange(Math.max(parseFloat(e.target.value) || 0, 0))}
+        min={min}
+        step={step}
+        value={display}
+        onChange={e => setDisplay(e.target.value)}
+        onBlur={handleBlur}
         className={`${inputClass} pl-9`}
       />
     </div>
@@ -72,7 +86,7 @@ export default function InputPanel({ input, onChange }: Props) {
           />
         </Field>
         <Field label="Patrimônio investido hoje (R$)">
-          <MoneyInput value={input.currentPatrimony} onChange={v => set({ currentPatrimony: v })} />
+          <MoneyInput value={input.currentPatrimony} onChange={v => set({ currentPatrimony: v })} step={1000} />
         </Field>
         <Field label="Quanto você poupa por mês (R$)">
           <MoneyInput value={input.monthlyContribution} onChange={v => set({ monthlyContribution: v })} />
@@ -82,7 +96,7 @@ export default function InputPanel({ input, onChange }: Props) {
       <div className="space-y-3">
         <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Sua Meta</p>
         <Field label="Renda mensal desejada na independência (R$)">
-          <MoneyInput value={input.desiredMonthlyIncome} onChange={v => set({ desiredMonthlyIncome: Math.max(v, 1) })} />
+          <MoneyInput value={input.desiredMonthlyIncome} onChange={v => set({ desiredMonthlyIncome: Math.max(v, 1) })} min={1} />
         </Field>
         <div className="bg-slate-50 rounded-lg px-3 py-2 flex items-center justify-between">
           <span className="text-xs text-slate-500">Patrimônio necessário (regra dos 4%)</span>
