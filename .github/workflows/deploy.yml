@@ -29,11 +29,16 @@ jobs:
         run: npm install && npm run build
         working-directory: calculadora-independencia
 
+      - name: Build comparador de renda fixa
+        run: npm install && npm run build
+        working-directory: comparador-renda-fixa
+
       - name: Montar estrutura de páginas
         run: |
-          mkdir -p _pages/simulador-aposentadoria _pages/calculadora-independencia
+          mkdir -p _pages/simulador-aposentadoria _pages/calculadora-independencia _pages/comparador-renda-fixa
           cp -r simulador-aposentadoria/dist/* _pages/simulador-aposentadoria/
           cp -r calculadora-independencia/dist/* _pages/calculadora-independencia/
+          cp -r comparador-renda-fixa/dist/* _pages/comparador-renda-fixa/
           cp index.html _pages/index.html
 
       - uses: actions/configure-pages@v4
