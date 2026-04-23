@@ -114,7 +114,7 @@ export default function InputPanel({ input, onChange }: Props) {
     if (t === 'prefixado') {
       set({ cdbRateType: t, cdbRate: Math.max(input.cdiRate - 1.0, 0) })
     } else {
-      set({ cdbRateType: t })
+      set({ cdbRateType: t, cdbRate: 100 })
     }
   }
 
@@ -122,7 +122,7 @@ export default function InputPanel({ input, onChange }: Props) {
     if (t === 'prefixado') {
       set({ lciLcaRateType: t, lciLcaRate: Math.max(input.cdiRate - 2.0, 0) })
     } else {
-      set({ lciLcaRateType: t })
+      set({ lciLcaRateType: t, lciLcaRate: 90 })
     }
   }
 
