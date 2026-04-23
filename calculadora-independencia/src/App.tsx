@@ -35,11 +35,8 @@ export default function App() {
                 <p className="text-slate-400 text-xs mt-0.5">Descubra quando você pode parar de trabalhar</p>
               </div>
             </div>
-            <a
-              href="../simulador-aposentadoria/"
-              className="text-xs text-slate-400 hover:text-gold transition-colors hidden sm:block"
-            >
-              ← Simulador de Aposentadoria
+            <a href="../" className="text-xs text-slate-400 hover:text-gold transition-colors hidden sm:block">
+              ← Início
             </a>
           </div>
         </div>
