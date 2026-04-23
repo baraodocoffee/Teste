@@ -110,6 +110,22 @@ export default function InputPanel({ input, onChange }: Props) {
     setDaysDisplay(String(next))
   }
 
+  const handleCdbTypeChange = (t: RateType) => {
+    if (t === 'prefixado') {
+      set({ cdbRateType: t, cdbRate: Math.max(input.cdiRate - 1.0, 0) })
+    } else {
+      set({ cdbRateType: t })
+    }
+  }
+
+  const handleLciLcaTypeChange = (t: RateType) => {
+    if (t === 'prefixado') {
+      set({ lciLcaRateType: t, lciLcaRate: Math.max(input.cdiRate - 2.0, 0) })
+    } else {
+      set({ lciLcaRateType: t })
+    }
+  }
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -171,7 +187,7 @@ export default function InputPanel({ input, onChange }: Props) {
             <RateTypeField
               rateType={input.cdbRateType}
               rate={input.cdbRate}
-              onTypeChange={t => set({ cdbRateType: t })}
+              onTypeChange={handleCdbTypeChange}
               onRateChange={v => set({ cdbRate: v })}
             />
           </div>
@@ -205,7 +221,7 @@ export default function InputPanel({ input, onChange }: Props) {
             <RateTypeField
               rateType={input.lciLcaRateType}
               rate={input.lciLcaRate}
-              onTypeChange={t => set({ lciLcaRateType: t })}
+              onTypeChange={handleLciLcaTypeChange}
               onRateChange={v => set({ lciLcaRate: v })}
             />
           </div>
