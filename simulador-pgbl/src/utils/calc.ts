@@ -1,9 +1,21 @@
 export interface PGBLInput {
   monthlyGross: number
   pgblPct: number
-  otherDeductionsAnnual: number
+  dependents: number        // número de dependentes
+  healthAnnual: number      // despesas de saúde anuais (sem limite)
+  educationAnnual: number   // despesas de educação anuais (limite por pessoa)
   years: number
   annualReturn: number
+}
+
+const DEPENDENT_DEDUCTION = 2275.08   // por dependente — 2026
+const EDUCATION_LIMIT = 3561.50       // por pessoa (titular + dependente) — 2026
+
+function calcOtherDeductions(dependents: number, healthAnnual: number, educationAnnual: number): number {
+  const dependentDeduction = dependents * DEPENDENT_DEDUCTION
+  const educationCap = (1 + dependents) * EDUCATION_LIMIT
+  const educationDeduction = Math.min(educationAnnual, educationCap)
+  return dependentDeduction + healthAnnual + educationDeduction
 }
 
 // INSS 2026 — tabela progressiva mensal (teto R$ 8.475,55; max R$ 988,09)
@@ -93,7 +105,7 @@ export interface PGBLResult {
 }
 
 export function calculate(input: PGBLInput): PGBLResult {
-  const { monthlyGross, pgblPct, otherDeductionsAnnual, years, annualReturn } = input
+  const { monthlyGross, pgblPct, dependents, healthAnnual, educationAnnual, years, annualReturn } = input
   const r = annualReturn / 100
 
   const inssMonthly = calcINSS(monthlyGross)
@@ -105,6 +117,7 @@ export function calculate(input: PGBLInput): PGBLResult {
   const inssAnnual = inssMonthly * 12
   const irWithheldAnnual = irWithheld * 12
   const pgblContribAnual = grossAnnual * (pgblPct / 100)
+  const otherDeductionsAnnual = calcOtherDeductions(dependents, healthAnnual, educationAnnual)
 
   // Simplificado: 20% da renda bruta, limitado a R$ 17.640/ano
   const simpDeducao = Math.min(grossAnnual * 0.20, 17640)

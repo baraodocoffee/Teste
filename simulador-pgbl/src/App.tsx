@@ -8,7 +8,9 @@ import { calculate, PGBLInput } from './utils/calc'
 const DEFAULT_INPUT: PGBLInput = {
   monthlyGross: 10000,
   pgblPct: 12,
-  otherDeductionsAnnual: 0,
+  dependents: 0,
+  healthAnnual: 0,
+  educationAnnual: 0,
   years: 20,
   annualReturn: 10,
 }

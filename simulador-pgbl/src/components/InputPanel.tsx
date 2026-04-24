@@ -6,11 +6,10 @@ interface Props {
   onChange: (v: PGBLInput) => void
 }
 
-function MoneyInput({ value, onCommit, label, hint }: {
+function MoneyInput({ value, onCommit, label }: {
   value: number
   onCommit: (v: number) => void
   label: string
-  hint?: string
 }) {
   const [display, setDisplay] = useState(value === 0 ? '' : value.toFixed(2).replace('.', ','))
 
@@ -26,9 +25,8 @@ function MoneyInput({ value, onCommit, label, hint }: {
   }
 
   return (
-    <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
-      {hint && <p className="text-xs text-slate-400 mb-1">{hint}</p>}
+    <div className="flex flex-col gap-1">
+      <label className="text-sm font-medium text-slate-700">{label}</label>
       <div className="relative">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">R$</span>
         <input
@@ -41,6 +39,36 @@ function MoneyInput({ value, onCommit, label, hint }: {
           className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy transition"
         />
       </div>
+    </div>
+  )
+}
+
+function DependentsInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-sm font-medium text-slate-700">Dependentes</label>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => onChange(Math.max(0, value - 1))}
+          className="w-9 h-10 rounded-lg border border-slate-200 bg-white text-slate-600 text-lg font-medium hover:bg-slate-50 transition flex items-center justify-center select-none"
+        >
+          −
+        </button>
+        <div className="flex-1 h-10 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm font-semibold flex items-center justify-center">
+          {value}
+        </div>
+        <button
+          onClick={() => onChange(Math.min(10, value + 1))}
+          className="w-9 h-10 rounded-lg border border-slate-200 bg-white text-slate-600 text-lg font-medium hover:bg-slate-50 transition flex items-center justify-center select-none"
+        >
+          +
+        </button>
+      </div>
+      {value > 0 && (
+        <p className="text-xs text-slate-400">
+          = {(value * 2275.08).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}/ano deduzidos
+        </p>
+      )}
     </div>
   )
 }
@@ -69,18 +97,37 @@ export default function InputPanel({ input, onChange }: Props) {
     <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-6">
       <h2 className="text-base font-semibold text-navy">Parâmetros da Simulação</h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <MoneyInput
-          label="Renda bruta mensal"
-          value={input.monthlyGross}
-          onCommit={v => set({ monthlyGross: v })}
-        />
-        <MoneyInput
-          label="Outros dedutíveis anuais"
-          hint="Saúde, dependentes, educação — total do ano"
-          value={input.otherDeductionsAnnual}
-          onCommit={v => set({ otherDeductionsAnnual: v })}
-        />
+      {/* Renda bruta — linha dedicada */}
+      <MoneyInput
+        label="Renda bruta mensal"
+        value={input.monthlyGross}
+        onCommit={v => set({ monthlyGross: v })}
+      />
+
+      {/* Deduções — 3 colunas alinhadas */}
+      <div>
+        <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-3">
+          Deduções (Declaração Completa)
+        </p>
+        <div className="grid grid-cols-3 gap-4 items-start">
+          <DependentsInput
+            value={input.dependents}
+            onChange={v => set({ dependents: v })}
+          />
+          <MoneyInput
+            label="Saúde (anual)"
+            value={input.healthAnnual}
+            onCommit={v => set({ healthAnnual: v })}
+          />
+          <MoneyInput
+            label="Educação (anual)"
+            value={input.educationAnnual}
+            onCommit={v => set({ educationAnnual: v })}
+          />
+        </div>
+        <p className="text-xs text-slate-400 mt-2">
+          Saúde: sem limite · Educação: até R$ 3.561,50 por pessoa · Dependentes: R$ 2.275,08/dep.
+        </p>
       </div>
 
       {/* PGBL Slider */}
@@ -115,10 +162,10 @@ export default function InputPanel({ input, onChange }: Props) {
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-start">
         {/* Horizonte */}
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Horizonte de acumulação</label>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-slate-700">Horizonte de acumulação</label>
           <div className="flex gap-2">
             {HORIZONTE_OPTIONS.map(y => (
               <button
@@ -137,9 +184,9 @@ export default function InputPanel({ input, onChange }: Props) {
         </div>
 
         {/* Rentabilidade */}
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Rentabilidade anual estimada</label>
-          <div className="flex gap-2 mb-2">
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-slate-700">Rentabilidade anual estimada</label>
+          <div className="flex gap-2">
             {PROFILES.map(p => (
               <button
                 key={p.label}
@@ -170,7 +217,7 @@ export default function InputPanel({ input, onChange }: Props) {
                 set({ annualReturn: safe })
                 setReturnDisplay(String(safe))
               }}
-              className="w-full pr-8 pl-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy transition"
+              className="w-full pr-8 pl-3 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy transition"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">%</span>
           </div>
