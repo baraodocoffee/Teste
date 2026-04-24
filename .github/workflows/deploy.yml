@@ -7,6 +7,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
       pages: write
@@ -20,21 +21,27 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: |
+            simulador-aposentadoria/package-lock.json
+            calculadora-independencia/package-lock.json
+            comparador-renda-fixa/package-lock.json
+            simulador-pgbl/package-lock.json
 
       - name: Build simulador de aposentadoria
-        run: npm ci && npm run build
+        run: npm ci --no-audit --no-fund && npm run build
         working-directory: simulador-aposentadoria
 
       - name: Build calculadora de independência
-        run: npm install && npm run build
+        run: npm ci --no-audit --no-fund && npm run build
         working-directory: calculadora-independencia
 
       - name: Build comparador de renda fixa
-        run: npm install && npm run build
+        run: npm ci --no-audit --no-fund && npm run build
         working-directory: comparador-renda-fixa
 
       - name: Build simulador PGBL
-        run: npm install && npm run build
+        run: npm ci --no-audit --no-fund && npm run build
         working-directory: simulador-pgbl
 
       - name: Montar estrutura de páginas
