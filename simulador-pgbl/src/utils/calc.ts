@@ -52,6 +52,7 @@ function descontoMensal(gross: number): number {
 
 // IR mensal final 2026 (progressivo − desconto)
 function calcIRMensal(base: number, gross: number): number {
+  if (gross <= 5000) return 0
   return Math.max(0, irMensalProgressivo(base) - descontoMensal(gross))
 }
 
@@ -73,6 +74,7 @@ function descontoAnual(grossAnnual: number): number {
 
 // IR anual final 2026 (progressivo − desconto)
 function calcIRAnual(base: number, grossAnnual: number): number {
+  if (grossAnnual <= 60000) return 0
   return Math.max(0, irAnualProgressivo(base) - descontoAnual(grossAnnual))
 }
 

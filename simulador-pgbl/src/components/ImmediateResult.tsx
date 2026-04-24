@@ -5,6 +5,7 @@ const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', curren
 interface Props {
   result: PGBLResult
   pgblPct: number
+  monthlyGross: number
 }
 
 function DiffBadge({ value }: { value: number }) {
@@ -23,24 +24,32 @@ interface ScenarioCardProps {
   subtitle: string
   scenario: AnnualScenario
   best: boolean
+  notRecommended?: boolean
   highlight?: boolean
   pgblPct?: number
 }
 
-function ScenarioCard({ title, subtitle, scenario: s, best, highlight, pgblPct }: ScenarioCardProps) {
+function ScenarioCard({ title, subtitle, scenario: s, best, notRecommended, highlight, pgblPct }: ScenarioCardProps) {
   return (
     <div className={`rounded-xl border p-4 flex flex-col gap-3 transition ${
-      best
-        ? 'border-gold bg-amber-50 shadow-sm'
-        : 'border-slate-200 bg-white'
+      notRecommended
+        ? 'border-red-200 bg-red-50'
+        : best
+          ? 'border-gold bg-amber-50 shadow-sm'
+          : 'border-slate-200 bg-white'
     }`}>
       <div>
         <div className="flex items-start justify-between gap-2">
           <div>
-            <p className={`text-sm font-semibold ${best ? 'text-navy' : 'text-slate-700'}`}>{title}</p>
+            <p className={`text-sm font-semibold ${notRecommended ? 'text-red-700' : best ? 'text-navy' : 'text-slate-700'}`}>{title}</p>
             <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>
           </div>
-          {best && (
+          {notRecommended && (
+            <span className="shrink-0 text-xs font-semibold bg-red-100 text-red-700 px-2 py-0.5 rounded-full border border-red-200">
+              Não recomendado
+            </span>
+          )}
+          {best && !notRecommended && (
             <span className="shrink-0 text-xs font-semibold bg-gold text-navy px-2 py-0.5 rounded-full">
               Melhor opção
             </span>
@@ -95,13 +104,18 @@ function Row({ label, value, highlight, accent, bold }: {
   )
 }
 
-export default function ImmediateResult({ result, pgblPct }: Props) {
+export default function ImmediateResult({ result, pgblPct, monthlyGross }: Props) {
   const { monthly, simplificado, completo, completoComPGBL, annualTaxSaving } = result
 
-  const bestDiff = Math.max(simplificado.difference, completo.difference, completoComPGBL.difference)
+  const pgblNotRecommended = monthlyGross <= 7350
+
+  // Quando PGBL não é recomendado, só disputa entre simplificado e completo
+  const bestDiff = pgblNotRecommended
+    ? Math.max(simplificado.difference, completo.difference)
+    : Math.max(simplificado.difference, completo.difference, completoComPGBL.difference)
   const simpIsBest = simplificado.difference === bestDiff
   const complIsBest = !simpIsBest && completo.difference === bestDiff
-  const pgblIsBest = completoComPGBL.difference === bestDiff
+  const pgblIsBest = !pgblNotRecommended && completoComPGBL.difference === bestDiff
 
   return (
     <div className="space-y-5">
@@ -137,14 +151,15 @@ export default function ImmediateResult({ result, pgblPct }: Props) {
             subtitle={`INSS + PGBL ${pgblPct.toFixed(1)}% + outros`}
             scenario={completoComPGBL}
             best={pgblIsBest}
+            notRecommended={pgblNotRecommended}
             highlight
             pgblPct={pgblPct}
           />
         </div>
       </div>
 
-      {/* Benefício resumido */}
-      {annualTaxSaving > 0 && (
+      {/* Benefício resumido — só exibe quando PGBL é recomendado */}
+      {annualTaxSaving > 0 && !pgblNotRecommended && (
         <div className="bg-amber-50 border border-gold/40 rounded-xl px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-navy">Benefício anual do PGBL</p>

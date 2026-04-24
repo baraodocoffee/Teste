@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import InputPanel from './components/InputPanel'
 import ImmediateResult from './components/ImmediateResult'
 import LongTermResult from './components/LongTermResult'
+import PGBLWarning from './components/PGBLWarning'
 import Disclaimers from './components/Disclaimers'
 import { calculate, PGBLInput } from './utils/calc'
 
@@ -18,6 +19,8 @@ const DEFAULT_INPUT: PGBLInput = {
 export default function App() {
   const [input, setInput] = useState<PGBLInput>(DEFAULT_INPUT)
   const result = useMemo(() => calculate(input), [input])
+
+  const pgblNotRecommended = input.monthlyGross <= 7350
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -47,10 +50,26 @@ export default function App() {
 
       <main className="max-w-5xl mx-auto px-6 py-8 space-y-6">
         <InputPanel input={input} onChange={setInput} />
-        <ImmediateResult result={result} pgblPct={input.pgblPct} />
-        {input.pgblPct > 0 && (
+
+        <PGBLWarning monthlyGross={input.monthlyGross} />
+
+        <ImmediateResult result={result} pgblPct={input.pgblPct} monthlyGross={input.monthlyGross} />
+
+        {input.pgblPct > 0 && !pgblNotRecommended && (
           <LongTermResult result={result} years={input.years} annualReturn={input.annualReturn} />
         )}
+
+        {input.pgblPct > 0 && pgblNotRecommended && (
+          <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center space-y-2">
+            <p className="text-slate-500 text-sm font-medium">Projeção de longo prazo não exibida</p>
+            <p className="text-slate-400 text-xs max-w-md mx-auto">
+              O PGBL não é recomendado para esta faixa de renda. A projeção seria enganosa pois
+              o custo tributário na saída tende a superar o benefício fiscal na entrada.
+              Considere simular o VGBL ou outros investimentos de longo prazo.
+            </p>
+          </div>
+        )}
+
         <Disclaimers />
       </main>
 
