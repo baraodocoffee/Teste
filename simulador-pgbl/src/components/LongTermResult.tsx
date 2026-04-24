@@ -122,7 +122,11 @@ export default function LongTermResult({ result, years, annualReturn }: Props) {
           <p className="text-xs font-semibold text-navy uppercase tracking-wide mb-3">Com PGBL — após {years} anos</p>
           <div className="space-y-2 text-sm">
             <FinalRow label="Patrimônio PGBL (bruto)" value={fmt(final.comPGBL.pgblGross)} />
-            <FinalRow label="IR na saída (10% sobre total)" value={`– ${fmt(final.comPGBL.pgblTax)}`} red />
+            <FinalRow
+              label={`IR na saída (alíq. efetiva ${(final.comPGBL.effectiveRate * 100).toFixed(1)}%)`}
+              value={`– ${fmt(final.comPGBL.pgblTax)}`}
+              red
+            />
             <FinalRow label="Líquido PGBL" value={fmt(final.comPGBL.pgblNet)} />
             {annualTaxSaving > 0 && (
               <>
