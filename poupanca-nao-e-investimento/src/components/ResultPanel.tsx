@@ -71,7 +71,6 @@ function AssetCard({
           <span className="text-xl font-bold text-navy">{brl(result.netBalance)}</span>
         </div>
         <Row label="Rendimento líquido" value={brl(result.netGain)} highlight={result.netGain > 0} />
-        <Row label="Rentabilidade líquida a.a." value={pct(result.effectiveNetRate)} />
         <Row label="Poder de compra hoje" value={brl(result.realNetBalance)} />
       </div>
 
