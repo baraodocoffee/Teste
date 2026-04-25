@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main, claude/code-vs-prompt-diff-LbY6J, claude/ola-2k7uN]
+    branches: [main, claude/code-vs-prompt-diff-LbY6J, claude/ola-2k7uN, claude/savings-investment-project-R47R9]
 
 jobs:
   build-and-deploy:
