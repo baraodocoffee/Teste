@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main, claude/code-vs-prompt-diff-LbY6J, claude/ola-2k7uN]
+    branches: [main, claude/code-vs-prompt-diff-LbY6J, claude/ola-2k7uN, claude/savings-investment-project-R47R9]
 
 jobs:
   build-and-deploy:
@@ -27,6 +27,7 @@ jobs:
             calculadora-independencia/package-lock.json
             comparador-renda-fixa/package-lock.json
             simulador-pgbl/package-lock.json
+            poupanca-nao-e-investimento/package-lock.json
 
       - name: Build simulador de aposentadoria
         run: npm ci --no-audit --no-fund && npm run build
@@ -44,13 +45,18 @@ jobs:
         run: npm ci --no-audit --no-fund && npm run build
         working-directory: simulador-pgbl
 
+      - name: Build poupança não é investimento
+        run: npm ci --no-audit --no-fund && npm run build
+        working-directory: poupanca-nao-e-investimento
+
       - name: Montar estrutura de páginas
         run: |
-          mkdir -p _pages/simulador-aposentadoria _pages/calculadora-independencia _pages/comparador-renda-fixa _pages/simulador-pgbl
+          mkdir -p _pages/simulador-aposentadoria _pages/calculadora-independencia _pages/comparador-renda-fixa _pages/simulador-pgbl _pages/poupanca-nao-e-investimento
           cp -r simulador-aposentadoria/dist/* _pages/simulador-aposentadoria/
           cp -r calculadora-independencia/dist/* _pages/calculadora-independencia/
           cp -r comparador-renda-fixa/dist/* _pages/comparador-renda-fixa/
           cp -r simulador-pgbl/dist/* _pages/simulador-pgbl/
+          cp -r poupanca-nao-e-investimento/dist/* _pages/poupanca-nao-e-investimento/
           cp index.html _pages/index.html
 
       - uses: actions/configure-pages@v4
