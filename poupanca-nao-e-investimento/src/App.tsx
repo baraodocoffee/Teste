@@ -6,10 +6,10 @@ import { calculate, SavingsInput } from './utils/calc'
 
 const DEFAULT_INPUT: SavingsInput = {
   principal: 10000,
-  monthlyContrib: 500,
+  monthlyContrib: 0,
   years: 10,
   selic: 14.75,
-  ipca: 5.0,
+  ipca: 4.5,
 }
 
 export default function App() {

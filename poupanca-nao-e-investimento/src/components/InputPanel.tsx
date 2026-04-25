@@ -167,11 +167,20 @@ export default function InputPanel({ input, onChange }: Props) {
               <div className="w-7 h-7 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0">
                 <span className="text-white text-xs font-bold">T</span>
               </div>
-              <div>
+              <div className="flex-1">
                 <p className="text-xs font-semibold text-emerald-900">Tesouro Selic</p>
-                <p className="text-xs text-emerald-700">
-                  {Math.max(input.selic - 0.20, 0).toFixed(2)}% a.a. bruto · IR 15%
-                </p>
+                <div className="flex items-center gap-1">
+                  <p className="text-xs text-emerald-700">
+                    {Math.max(input.selic - 0.20, 0).toFixed(2)}% a.a. bruto · IR 15%
+                  </p>
+                  <div className="relative group">
+                    <span className="w-3.5 h-3.5 rounded-full bg-emerald-200 text-emerald-700 text-[9px] font-bold flex items-center justify-center cursor-default select-none">?</span>
+                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-52 bg-slate-800 text-white text-xs rounded-lg px-3 py-2 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 leading-relaxed">
+                      Taxa Selic ({input.selic.toFixed(2)}%) menos a taxa de custódia da B3 (0,20% a.a.), cobrada anualmente sobre o saldo do Tesouro Direto.
+                      <div className="absolute left-1/2 -translate-x-1/2 top-full border-4 border-transparent border-t-slate-800" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
