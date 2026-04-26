@@ -41,10 +41,10 @@ export interface CalcResult {
 }
 
 function irAliquot(months: number): number {
-  if (months <= 6) return 0.225
-  if (months <= 12) return 0.20
-  if (months <= 24) return 0.175
-  return 0.15
+  if (months <= 6) return 0.225   // até 180 dias
+  if (months < 12) return 0.20    // 181 a 360 dias
+  if (months < 24) return 0.175   // 361 a 720 dias (12 meses ≈ 365 dias)
+  return 0.15                      // acima de 720 dias (24 meses ≈ 730 dias)
 }
 
 function selicAtMonth(m: number, scenario: Scenario): number {

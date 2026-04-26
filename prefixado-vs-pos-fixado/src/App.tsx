@@ -9,7 +9,7 @@ import ResultCards from './components/ResultCards'
 const DEFAULT_INPUT: CalcInput = {
   principal: 50000,
   months: 24,
-  prefixedRate: 14.5,
+  prefixedRate: 13.5,
   scenario: 'moderado',
 }
 
