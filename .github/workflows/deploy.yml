@@ -28,6 +28,7 @@ jobs:
             comparador-renda-fixa/package-lock.json
             simulador-pgbl/package-lock.json
             poupanca-nao-e-investimento/package-lock.json
+            prefixado-vs-pos-fixado/package-lock.json
 
       - name: Build simulador de aposentadoria
         run: npm ci --no-audit --no-fund && npm run build
@@ -49,14 +50,19 @@ jobs:
         run: npm ci --no-audit --no-fund && npm run build
         working-directory: poupanca-nao-e-investimento
 
+      - name: Build prefixado vs pós-fixado
+        run: npm ci --no-audit --no-fund && npm run build
+        working-directory: prefixado-vs-pos-fixado
+
       - name: Montar estrutura de páginas
         run: |
-          mkdir -p _pages/simulador-aposentadoria _pages/calculadora-independencia _pages/comparador-renda-fixa _pages/simulador-pgbl _pages/poupanca-nao-e-investimento
+          mkdir -p _pages/simulador-aposentadoria _pages/calculadora-independencia _pages/comparador-renda-fixa _pages/simulador-pgbl _pages/poupanca-nao-e-investimento _pages/prefixado-vs-pos-fixado
           cp -r simulador-aposentadoria/dist/* _pages/simulador-aposentadoria/
           cp -r calculadora-independencia/dist/* _pages/calculadora-independencia/
           cp -r comparador-renda-fixa/dist/* _pages/comparador-renda-fixa/
           cp -r simulador-pgbl/dist/* _pages/simulador-pgbl/
           cp -r poupanca-nao-e-investimento/dist/* _pages/poupanca-nao-e-investimento/
+          cp -r prefixado-vs-pos-fixado/dist/* _pages/prefixado-vs-pos-fixado/
           cp index.html _pages/index.html
 
       - uses: actions/configure-pages@v4
