@@ -21,10 +21,11 @@ interface CardProps {
   net: number
   principal: number
   irAliquot: number
+  isExempt?: boolean
   winner: boolean
 }
 
-function InstrumentCard({ title, subtitle, gross, net, principal, irAliquot, winner }: CardProps) {
+function InstrumentCard({ title, subtitle, gross, net, principal, irAliquot, isExempt, winner }: CardProps) {
   const grossGain = gross - principal
   const irAmount = grossGain * irAliquot
   const netReturn = ((net / principal) - 1) * 100
@@ -40,11 +41,18 @@ function InstrumentCard({ title, subtitle, gross, net, principal, irAliquot, win
           <p className="text-sm font-bold text-slate-800">{title}</p>
           <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>
         </div>
-        {winner && (
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-navy text-white">
-            VENCEDOR
-          </span>
-        )}
+        <div className="flex flex-col items-end gap-1">
+          {isExempt && (
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+              ISENTO IR
+            </span>
+          )}
+          {winner && (
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-navy text-white">
+              VENCEDOR
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="mb-3">
@@ -56,7 +64,10 @@ function InstrumentCard({ title, subtitle, gross, net, principal, irAliquot, win
 
       <div className="space-y-0">
         <Row label="Saldo bruto" value={formatBRL(gross)} />
-        <Row label={`IR (${formatPct(irAliquot * 100, 1)})`} value={`- ${formatBRL(irAmount)}`} />
+        {isExempt
+          ? <Row label="IR" value="Isento de IR (PF)" />
+          : <Row label={`IR (${formatPct(irAliquot * 100, 1)})`} value={`- ${formatBRL(irAmount)}`} />
+        }
         <Row label="Rentab. líquida" value={formatPct(netReturn)} highlight />
       </div>
     </div>
@@ -64,25 +75,30 @@ function InstrumentCard({ title, subtitle, gross, net, principal, irAliquot, win
 }
 
 export default function ResultCards({ input, result }: Props) {
-  const { principal, prefixedRate, months } = input
+  const { principal, prefixedRate, months, instrumentType } = input
   const {
     finalPrefixedGross, finalPrefixedNet,
     finalPosGross, finalPosNet,
-    irAliquot, advantage,
+    irAliquot, prefixedIR, advantage,
   } = result
 
+  const isLCA = instrumentType === 'lca'
   const prefixadoVence = advantage > 0
+  const prefixedTitle = isLCA
+    ? `LCA Prefixada ${formatPct(prefixedRate)} a.a.`
+    : `CDB / LTN ${formatPct(prefixedRate)} a.a.`
 
   return (
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <InstrumentCard
-          title={`CDB / LTN ${formatPct(prefixedRate)} a.a.`}
+          title={prefixedTitle}
           subtitle={`Prefixado · ${months} meses`}
           gross={finalPrefixedGross}
           net={finalPrefixedNet}
           principal={principal}
-          irAliquot={irAliquot}
+          irAliquot={prefixedIR}
+          isExempt={isLCA}
           winner={prefixadoVence}
         />
         <InstrumentCard

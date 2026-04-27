@@ -11,6 +11,7 @@ const DEFAULT_INPUT: CalcInput = {
   months: 24,
   prefixedRate: 13.5,
   scenario: 'moderado',
+  instrumentType: 'cdb',
 }
 
 const SELIC_ATUAL = '14,75%'

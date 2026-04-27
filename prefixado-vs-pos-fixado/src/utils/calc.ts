@@ -12,12 +12,14 @@ const SELIC_PATHS: Record<Scenario, number[]> = {
 const CDI_SPREAD = 0.10
 
 export type Scenario = 'suave' | 'moderado' | 'acentuado'
+export type InstrumentType = 'cdb' | 'lca'
 
 export interface CalcInput {
   principal: number
   months: number
   prefixedRate: number
   scenario: Scenario
+  instrumentType: InstrumentType
 }
 
 export interface MonthlyPoint {
@@ -35,6 +37,7 @@ export interface CalcResult {
   finalPosGross: number
   finalPosNet: number
   irAliquot: number
+  prefixedIR: number
   breakevenCDI: number
   avgProjectedCDI: number
   advantage: number
@@ -70,7 +73,8 @@ function monthLabel(m: number): string {
 }
 
 export function calculate(input: CalcInput): CalcResult {
-  const { principal, months, prefixedRate, scenario } = input
+  const { principal, months, prefixedRate, scenario, instrumentType } = input
+  const isLCA = instrumentType === 'lca'
   const prefixedMonthly = Math.pow(1 + prefixedRate / 100, 1 / 12) - 1
 
   let prefixedBalance = principal
@@ -89,7 +93,10 @@ export function calculate(input: CalcInput): CalcResult {
     posBalance *= 1 + cdiMonthly
 
     const ir = irAliquot(m)
-    const prefixedNet = principal + (prefixedBalance - principal) * (1 - ir)
+    // LCA prefixada é isenta de IR para PF
+    const prefixedNet = isLCA
+      ? prefixedBalance
+      : principal + (prefixedBalance - principal) * (1 - ir)
     const posNet = principal + (posBalance - principal) * (1 - ir)
 
     points.push({
@@ -104,7 +111,9 @@ export function calculate(input: CalcInput): CalcResult {
   const finalIR = irAliquot(months)
   const finalPrefixedGross = prefixedBalance
   const finalPosGross = posBalance
-  const finalPrefixedNet = principal + (finalPrefixedGross - principal) * (1 - finalIR)
+  const finalPrefixedNet = isLCA
+    ? prefixedBalance
+    : principal + (finalPrefixedGross - principal) * (1 - finalIR)
   const finalPosNet = principal + (finalPosGross - principal) * (1 - finalIR)
 
   // Geometric mean of CDI monthly rates → annualized
@@ -112,8 +121,19 @@ export function calculate(input: CalcInput): CalcResult {
   const avgCDIMonthly = Math.pow(cdiProduct, 1 / months) - 1
   const avgProjectedCDI = (Math.pow(1 + avgCDIMonthly, 12) - 1) * 100
 
-  // Breakeven: CDI would need to average same as prefixed rate (same IR for same term)
-  const breakevenCDI = prefixedRate
+  // Breakeven: qual CDI médio igualaria o pós-fixado (tributado) ao prefixado
+  // CDB/LTN: mesma alíquota → breakeven CDI = taxa prefixada
+  // LCA isenta: CDI precisa compensar o IR que o pós-fixado paga
+  //   principal + (be_balance - principal) * (1-IR) = prefixedBalance
+  //   be_balance = principal + (prefixedBalance - principal) / (1-IR)
+  let breakevenCDI: number
+  if (isLCA) {
+    const beBalance = principal + (prefixedBalance - principal) / (1 - finalIR)
+    const beMonthly = Math.pow(beBalance / principal, 1 / months) - 1
+    breakevenCDI = (Math.pow(1 + beMonthly, 12) - 1) * 100
+  } else {
+    breakevenCDI = prefixedRate
+  }
 
   return {
     points,
@@ -122,6 +142,7 @@ export function calculate(input: CalcInput): CalcResult {
     finalPosGross,
     finalPosNet,
     irAliquot: finalIR,
+    prefixedIR: isLCA ? 0 : finalIR,
     breakevenCDI,
     avgProjectedCDI,
     advantage: finalPrefixedNet - finalPosNet,
