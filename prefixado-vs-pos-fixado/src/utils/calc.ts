@@ -3,9 +3,9 @@
 const MONTH_ANCHORS = [0, 8, 20, 32, 44]
 
 const SELIC_PATHS: Record<Scenario, number[]> = {
-  suave:     [14.75, 13.50, 12.50, 11.50, 11.00],
-  moderado:  [14.75, 13.00, 11.00, 10.00,  9.88],
-  acentuado: [14.75, 12.00,  9.50,  8.00,  7.50],
+  suave:     [14.50, 13.50, 12.50, 11.50, 11.00],
+  moderado:  [14.50, 13.00, 11.00, 10.00,  9.88],
+  acentuado: [14.50, 12.00,  9.50,  8.00,  7.50],
 }
 
 // CDI historically tracks ~0.10 p.p. below Selic meta
@@ -75,6 +75,7 @@ function monthLabel(m: number): string {
 export function calculate(input: CalcInput): CalcResult {
   const { principal, months, prefixedRate, scenario, instrumentType } = input
   const isLCA = instrumentType === 'lca'
+  // Capitalização diária base 252 du; 1 mês = 21 du → (1+r)^(21/252) = (1+r)^(1/12)
   const prefixedMonthly = Math.pow(1 + prefixedRate / 100, 1 / 12) - 1
 
   let prefixedBalance = principal
@@ -88,7 +89,7 @@ export function calculate(input: CalcInput): CalcResult {
 
     const selic = selicAtMonth(m - 1, scenario)
     const cdi = Math.max(selic - CDI_SPREAD, 0)
-    const cdiMonthly = Math.pow(1 + cdi / 100, 1 / 12) - 1
+    const cdiMonthly = Math.pow(1 + cdi / 100, 1 / 12) - 1 // base 252 du
     cdiMonthlyRates.push(cdiMonthly)
     posBalance *= 1 + cdiMonthly
 

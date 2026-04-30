@@ -14,8 +14,8 @@ const DEFAULT_INPUT: CalcInput = {
   instrumentType: 'cdb',
 }
 
-const SELIC_ATUAL = '14,75%'
-const CDI_ATUAL = '14,65%'
+const SELIC_ATUAL = '14,50%'
+const CDI_ATUAL = '14,40%'
 
 function formatDate(d: Date): string {
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
