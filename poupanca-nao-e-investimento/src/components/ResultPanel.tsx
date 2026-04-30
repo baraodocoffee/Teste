@@ -122,7 +122,7 @@ export default function ResultPanel({ result, input }: Props) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-1">
         <AssetCard
           label="Poupança"
-          subtitle={result.isSelicCapped ? '0,5% a.m. · Isento IR' : `${pct(result.poupancaAnnualRate)} a.a. · Isento`}
+          subtitle={result.isSelicCapped ? '0,5% a.m. + TR 0,131% · Isento IR' : `${pct(result.poupancaAnnualRate)} a.a. · Isento`}
           iconBg="bg-red-500"
           iconLetter="P"
           borderColor={poupanca.netBalance === worst ? 'border-red-300' : 'border-slate-200'}
@@ -162,7 +162,7 @@ export default function ResultPanel({ result, input }: Props) {
       {/* Nota metodológica */}
       <div className="bg-slate-50 rounded-xl border border-slate-100 p-4">
         <p className="text-xs text-slate-400 leading-relaxed text-center">
-          Poupança: 0,5% a.m. + TR quando Selic &gt; 8,5% (TR ≈ 0 simplificada) ·{' '}
+          Poupança: 0,5% a.m. + TR quando Selic &gt; 8,5% · TR: média mensal 0,131% a.m. (histórico 2022–2026) ·{' '}
           Tesouro Selic: Selic − 0,20% taxa custódia B3 · CDB: CDI ≈ Selic − 0,10% ·{' '}
           IR 15% sobre ganhos (alíquota LP acima de 720 dias) · Poder de compra deflacionado pelo IPCA de {pct(input.ipca)} a.a. ·{' '}
           Simulação educacional — não constitui recomendação de investimento.

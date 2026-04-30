@@ -38,7 +38,8 @@ export interface SavingsResult {
   isSelicCapped: boolean         // true quando SELIC > 8.5% (regra cap 0.5% a.m.)
 }
 
-// Converte taxa anual nominal para taxa mensal equivalente (juros compostos)
+// CDI/Selic: capitalização diária base 252 du; 1 mês = 21 du
+// (1 + anual)^(21/252) = (1 + anual)^(1/12) — matematicamente equivalente
 function annualToMonthly(annualPct: number): number {
   return Math.pow(1 + annualPct / 100, 1 / 12) - 1
 }
@@ -109,10 +110,12 @@ export function calculate(input: SavingsInput): SavingsResult {
   const { principal, monthlyContrib, years, selic, ipca } = input
 
   // — Poupança —
-  // Regra: SELIC > 8.5% → 0.5% a.m. fixo; SELIC ≤ 8.5% → 70% da SELIC
+  // Regra: SELIC > 8.5% → 0,5% a.m. fixo + TR; SELIC ≤ 8.5% → 70% da SELIC
+  // TR: média mensal histórica 2022–2026 = 0,131% a.m.
+  const TR_MONTHLY = 0.00131
   const isSelicCapped = selic > 8.5
   const poupancaMonthly = isSelicCapped
-    ? 0.005
+    ? 0.005 + TR_MONTHLY
     : annualToMonthly(selic * 0.70)
   const poupancaAnnualRate = (Math.pow(1 + poupancaMonthly, 12) - 1) * 100
 

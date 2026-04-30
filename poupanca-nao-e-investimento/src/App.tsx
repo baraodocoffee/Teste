@@ -8,7 +8,7 @@ const DEFAULT_INPUT: SavingsInput = {
   principal: 10000,
   monthlyContrib: 0,
   years: 10,
-  selic: 14.75,
+  selic: 14.50,
   ipca: 4.5,
 }
 
