@@ -6,7 +6,7 @@ import { calculate, ComparatorInput } from './utils/calc'
 const DEFAULT_INPUT: ComparatorInput = {
   principal: 10000,
   days: 365,
-  cdiRate: 14.65,
+  cdiRate: 14.40,
   cdbRateType: 'cdi',
   cdbRate: 100,
   lciLcaRateType: 'cdi',
