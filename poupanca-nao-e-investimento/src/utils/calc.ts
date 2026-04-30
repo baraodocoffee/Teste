@@ -14,6 +14,14 @@ export interface YearlySnapshot {
   contributed: number
 }
 
+export interface MonthlySnapshot {
+  month: number
+  poupanca: number
+  tesouroSelic: number
+  cdb: number
+  contributed: number
+}
+
 export interface AssetResult {
   netBalance: number
   totalContributed: number
@@ -30,6 +38,7 @@ export interface SavingsResult {
   tesouroSelic: AssetResult
   cdb: AssetResult
   snapshots: YearlySnapshot[]
+  monthlySnapshots: MonthlySnapshot[]
   poupancaAnnualRate: number     // % a.a. da poupança
   tesouroSelicGrossRate: number  // % a.a. bruta do Tesouro Selic
   cdiRate: number                // % a.a. do CDI
@@ -50,26 +59,27 @@ function simulateAsset(
   monthlyRate: number,
   years: number,
   irRate: number,
-): { netBalance: number; grossBalance: number; contributed: number; yearlyNetBalances: number[] } {
+): { netBalance: number; grossBalance: number; contributed: number; yearlyNetBalances: number[]; monthlyNetBalances: number[] } {
   let balance = principal
   let contributed = principal
   const yearlyNetBalances: number[] = []
+  const monthlyNetBalances: number[] = []
 
   for (let m = 1; m <= years * 12; m++) {
     balance = balance * (1 + monthlyRate) + monthlyContrib
     contributed += monthlyContrib
 
-    if (m % 12 === 0) {
-      const gains = balance - contributed
-      const netAtYear = gains > 0 ? contributed + gains * (1 - irRate) : balance
-      yearlyNetBalances.push(netAtYear)
-    }
+    const gains = balance - contributed
+    const netAtMonth = gains > 0 ? contributed + gains * (1 - irRate) : balance
+    monthlyNetBalances.push(netAtMonth)
+
+    if (m % 12 === 0) yearlyNetBalances.push(netAtMonth)
   }
 
   const totalGains = balance - contributed
   const netBalance = totalGains > 0 ? contributed + totalGains * (1 - irRate) : balance
 
-  return { netBalance, grossBalance: balance, contributed, yearlyNetBalances }
+  return { netBalance, grossBalance: balance, contributed, yearlyNetBalances, monthlyNetBalances }
 }
 
 function buildAssetResult(
@@ -135,13 +145,22 @@ export function calculate(input: SavingsInput): SavingsResult {
   const tesouroSim = simulateAsset(principal, monthlyContrib, tesouroSelicMonthly, years, IR_LONG)
   const cdbSim = simulateAsset(principal, monthlyContrib, cdbMonthly, years, IR_LONG)
 
-  // Snapshots anuais para o gráfico
+  // Snapshots anuais para o gráfico (prazo ≥ 5 anos)
   const snapshots: YearlySnapshot[] = poupSim.yearlyNetBalances.map((poupVal, i) => ({
     year: i + 1,
     poupanca: poupVal,
     tesouroSelic: tesouroSim.yearlyNetBalances[i],
     cdb: cdbSim.yearlyNetBalances[i],
     contributed: principal + monthlyContrib * 12 * (i + 1),
+  }))
+
+  // Snapshots mensais para o gráfico (prazo < 5 anos)
+  const monthlySnapshots: MonthlySnapshot[] = poupSim.monthlyNetBalances.map((poupVal, i) => ({
+    month: i + 1,
+    poupanca: poupVal,
+    tesouroSelic: tesouroSim.monthlyNetBalances[i],
+    cdb: cdbSim.monthlyNetBalances[i],
+    contributed: principal + monthlyContrib * (i + 1),
   }))
 
   const totalContributed = principal + monthlyContrib * 12 * years
@@ -161,6 +180,7 @@ export function calculate(input: SavingsInput): SavingsResult {
     tesouroSelic: tesouroResult,
     cdb: cdbResult,
     snapshots,
+    monthlySnapshots,
     poupancaAnnualRate,
     tesouroSelicGrossRate,
     cdiRate,

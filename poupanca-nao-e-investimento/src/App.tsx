@@ -44,7 +44,7 @@ export default function App() {
 
       <main className="max-w-5xl mx-auto px-6 py-8 space-y-6">
         <InputPanel input={input} onChange={setInput} />
-        <EvolutionChart snapshots={result.snapshots} />
+        <EvolutionChart snapshots={result.snapshots} monthlySnapshots={result.monthlySnapshots} years={input.years} />
         <ResultPanel result={result} input={input} />
       </main>
 
