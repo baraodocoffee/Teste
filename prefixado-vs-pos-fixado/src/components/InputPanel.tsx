@@ -125,6 +125,29 @@ export default function InputPanel({ input, onChange }: Props) {
           <RateInput value={input.prefixedRate} onChange={v => onChange({ ...input, prefixedRate: v })} />
         </Field>
       </div>
+
+      <div className="mt-4">
+        <Field label="Rentabilidade do pós-fixado" hint="CDB tributado">
+          <div className="flex items-center gap-4">
+            <input
+              type="range"
+              min={100}
+              max={115}
+              step={1}
+              value={input.cdiPct}
+              onChange={e => onChange({ ...input, cdiPct: Number(e.target.value) })}
+              className="flex-1 h-2 rounded-full accent-navy cursor-pointer"
+            />
+            <span className="text-sm font-semibold text-navy w-24 text-right whitespace-nowrap">
+              {input.cdiPct}% do CDI
+            </span>
+          </div>
+          <div className="flex justify-between mt-1 px-0.5">
+            <span className="text-[10px] text-slate-400">100%</span>
+            <span className="text-[10px] text-slate-400">115%</span>
+          </div>
+        </Field>
+      </div>
     </div>
   )
 }

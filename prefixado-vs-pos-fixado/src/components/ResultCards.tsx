@@ -102,7 +102,7 @@ export default function ResultCards({ input, result }: Props) {
           winner={prefixadoVence}
         />
         <InstrumentCard
-          title="CDB 100% CDI / Tesouro Selic"
+          title={`CDB ${input.cdiPct}% CDI`}
           subtitle={`Pós-fixado · ${months} meses`}
           gross={finalPosGross}
           net={finalPosNet}
