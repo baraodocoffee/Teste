@@ -10,6 +10,7 @@ const DEFAULT_INPUT: CalcInput = {
   principal: 50000,
   months: 24,
   prefixedRate: 13.5,
+  cdiPct: 100,
   scenario: 'moderado',
   instrumentType: 'cdb',
 }
@@ -82,7 +83,7 @@ export default function App() {
         <InputPanel input={input} onChange={setInput} />
         <ScenarioTabs selected={input.scenario} onChange={handleScenario} />
         <BreakevenCard result={result} />
-        <EvolutionChart points={result.points} />
+        <EvolutionChart points={result.points} cdiPct={input.cdiPct} />
         <ResultCards input={input} result={result} />
       </main>
 

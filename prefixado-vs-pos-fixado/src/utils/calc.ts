@@ -18,6 +18,7 @@ export interface CalcInput {
   principal: number
   months: number
   prefixedRate: number
+  cdiPct: number
   scenario: Scenario
   instrumentType: InstrumentType
 }
@@ -73,7 +74,7 @@ function monthLabel(m: number): string {
 }
 
 export function calculate(input: CalcInput): CalcResult {
-  const { principal, months, prefixedRate, scenario, instrumentType } = input
+  const { principal, months, prefixedRate, cdiPct, scenario, instrumentType } = input
   const isLCA = instrumentType === 'lca'
   // Capitalização diária base 252 du; 1 mês = 21 du → (1+r)^(21/252) = (1+r)^(1/12)
   const prefixedMonthly = Math.pow(1 + prefixedRate / 100, 1 / 12) - 1
@@ -90,8 +91,9 @@ export function calculate(input: CalcInput): CalcResult {
     const selic = selicAtMonth(m - 1, scenario)
     const cdi = Math.max(selic - CDI_SPREAD, 0)
     const cdiMonthly = Math.pow(1 + cdi / 100, 1 / 12) - 1 // base 252 du
+    const cdiEffectiveMonthly = cdiMonthly * (cdiPct / 100)
     cdiMonthlyRates.push(cdiMonthly)
-    posBalance *= 1 + cdiMonthly
+    posBalance *= 1 + cdiEffectiveMonthly
 
     const ir = irAliquot(m)
     // LCA prefixada é isenta de IR para PF
@@ -131,9 +133,10 @@ export function calculate(input: CalcInput): CalcResult {
   if (isLCA) {
     const beBalance = principal + (prefixedBalance - principal) / (1 - finalIR)
     const beMonthly = Math.pow(beBalance / principal, 1 / months) - 1
-    breakevenCDI = (Math.pow(1 + beMonthly, 12) - 1) * 100
+    const beAnnual = (Math.pow(1 + beMonthly, 12) - 1) * 100
+    breakevenCDI = beAnnual * 100 / cdiPct
   } else {
-    breakevenCDI = prefixedRate
+    breakevenCDI = prefixedRate * 100 / cdiPct
   }
 
   return {
