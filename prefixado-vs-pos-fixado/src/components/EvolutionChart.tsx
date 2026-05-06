@@ -13,6 +13,7 @@ import { MonthlyPoint, formatBRL } from '../utils/calc'
 interface Props {
   points: MonthlyPoint[]
   cdiPct: number
+  posIsExempt: boolean
 }
 
 function formatAxis(value: number): string {
@@ -58,7 +59,7 @@ function tickFilter(points: MonthlyPoint[]) {
     .map(p => p.label)
 }
 
-export default function EvolutionChart({ points, cdiPct }: Props) {
+export default function EvolutionChart({ points, cdiPct, posIsExempt }: Props) {
   const ticks = tickFilter(points)
 
   return (
@@ -100,7 +101,7 @@ export default function EvolutionChart({ points, cdiPct }: Props) {
           <Line
             type="monotone"
             dataKey="posFixadoNet"
-            name={`Pós-fixado ${cdiPct}% CDI`}
+            name={posIsExempt ? `Pós-fixado ${cdiPct}% CDI (isento)` : `Pós-fixado ${cdiPct}% CDI`}
             stroke="#94A3B8"
             strokeWidth={2}
             strokeDasharray="5 3"
