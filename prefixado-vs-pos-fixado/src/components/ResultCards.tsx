@@ -79,7 +79,7 @@ export default function ResultCards({ input, result }: Props) {
   const {
     finalPrefixedGross, finalPrefixedNet,
     finalPosGross, finalPosNet,
-    irAliquot, prefixedIR, advantage,
+    irAliquot, prefixedIR, posIR, advantage,
   } = result
 
   const isLCA = instrumentType === 'lca'
@@ -102,12 +102,13 @@ export default function ResultCards({ input, result }: Props) {
           winner={prefixadoVence}
         />
         <InstrumentCard
-          title={`CDB ${input.cdiPct}% CDI`}
+          title={input.posIsExempt ? `LCI/LCA ${input.cdiPct}% CDI` : `CDB ${input.cdiPct}% CDI`}
           subtitle={`Pós-fixado · ${months} meses`}
           gross={finalPosGross}
           net={finalPosNet}
           principal={principal}
-          irAliquot={irAliquot}
+          irAliquot={posIR}
+          isExempt={input.posIsExempt}
           winner={!prefixadoVence}
         />
       </div>
