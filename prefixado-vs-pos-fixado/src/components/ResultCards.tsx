@@ -79,7 +79,7 @@ export default function ResultCards({ input, result }: Props) {
   const {
     finalPrefixedGross, finalPrefixedNet,
     finalPosGross, finalPosNet,
-    irAliquot, prefixedIR, posIR, advantage,
+    prefixedIR, posIR, advantage,
   } = result
 
   const isLCA = instrumentType === 'lca'
