@@ -70,6 +70,7 @@ jobs:
           cp -r prefixado-vs-pos-fixado/dist/* _pages/prefixado-vs-pos-fixado/
           cp -r marcacao-a-mercado/dist/* _pages/marcacao-a-mercado/
           cp index.html _pages/index.html
+          cp prestacao.html _pages/prestacao.html
 
       - uses: actions/configure-pages@v4
 
